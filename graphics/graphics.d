@@ -24,4 +24,10 @@ interface Graphics {
 	void clear();
 	void blit();
 	void loadsprite(ref Sprite sprite, string fpath);
+
+	uint screenw();
+	uint screenh();
+
+	uint winw();
+	uint winh();
 }

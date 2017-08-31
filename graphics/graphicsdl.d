@@ -28,6 +28,18 @@ final class Graphicsdl: Graphics {
 
 		return dm.h;
 	}
+	uint winw() {
+		int ret;
+		SDL_GetWindowSize(window, ret, null);
+
+		return ret;
+	}
+	uint winh() {
+		int ret;
+		SDL_GetWindowSize(window, null, ret);
+
+		return ret;
+	}
 
 	void init(GraphicsPrefs gprefs) {
 		version (dynamic_sdl2) {
