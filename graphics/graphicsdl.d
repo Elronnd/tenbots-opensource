@@ -1,7 +1,6 @@
 module graphics.sdl;
 
 import graphics.graphics;
-import proto;
 import derelict.sdl2.image, derelict.sdl2.sdl;
 
 

@@ -1,7 +1,5 @@
 module graphics.graphics;
 
-import proto;
-
 package enum Gfx_type {
 	GRAPHICS_NONE,
 	GRAPHICS_SDL,
@@ -15,6 +13,18 @@ struct Sprite {
 		void *data;
 		Gfx_type gfx_type;
 	}
+}
+
+struct GraphicsPrefs {
+	uint winwidth, winheight;
+	uint logicalwidth, logicalheight;
+	int x, y;
+
+	bool use_vsync = true, use_hardware_acceleration = true;
+
+	enum Fullscreenstate { True, Desktop, None };
+	Fullscreenstate fullscreen = Fullscreenstate.None;
+	bool borderless = true;
 }
 
 interface Graphics {
