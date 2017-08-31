@@ -30,13 +30,13 @@ final class Graphicsdl: Graphics {
 	}
 	uint winw() {
 		int ret;
-		SDL_GetWindowSize(window, ret, null);
+		SDL_GetWindowSize(window, &ret, null);
 
 		return ret;
 	}
 	uint winh() {
 		int ret;
-		SDL_GetWindowSize(window, null, ret);
+		SDL_GetWindowSize(window, null, &ret);
 
 		return ret;
 	}
