@@ -14,6 +14,21 @@ final class Graphicsdl: Graphics {
 	private SDL_Window *window;
 	private SDL_Renderer *renderer;
 
+	uint screenw() {
+		SDL_DisplayMode dm;
+		if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
+			sdlerror();
+
+		return dm.w;
+	}
+	uint screenh() {
+		SDL_DisplayMode dm;
+		if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
+			sdlerror();
+
+		return dm.h;
+	}
+
 	void init(GraphicsPrefs gprefs) {
 		version (dynamic_sdl2) {
 			DerelictSDL2.load();
@@ -44,21 +59,7 @@ final class Graphicsdl: Graphics {
 		((gprefs.use_vsync && gprefs.use_hardware_acceleration) ? SDL_RENDERER_PRESENTVSYNC : cast(SDL_RendererFlags)0));
 
 		if (gprefs.logicalwidth || gprefs.logicalheight) {
-			auto getwidth = () {
-				SDL_DisplayMode dm;
-				if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
-					sdlerror();
-
-				return dm.w;
-			};
-			auto getheight = () {
-				SDL_DisplayMode dm;
-				if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
-					sdlerror();
-
-				return dm.h;
-			};
-			SDL_RenderSetLogicalSize(renderer, gprefs.logicalwidth ? gprefs.logicalwidth : getwidth(), gprefs.logicalheight ? gprefs.logicalheight : getheight());
+			SDL_RenderSetLogicalSize(renderer, gprefs.logicalwidth ? gprefs.logicalwidth : screenw(), gprefs.logicalheight ? gprefs.logicalheight : screenh());
 		}
 	}
 	void end() {
