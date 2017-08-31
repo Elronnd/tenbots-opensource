@@ -41,6 +41,19 @@ final class Graphicsdl: Graphics {
 		return ret;
 	}
 
+	float dpih() {
+		float ret;
+		SDL_GetDisplayDPI(0, null, &ret, null);
+
+		return ret;
+	}
+	float dpiw() {
+		float ret;
+		SDL_GetDisplayDPI(0, null, null, &ret);
+
+		return ret;
+	}
+
 	void init(GraphicsPrefs gprefs) {
 		version (dynamic_sdl2) {
 			DerelictSDL2.load();

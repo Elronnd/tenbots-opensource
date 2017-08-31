@@ -30,4 +30,7 @@ interface Graphics {
 
 	uint winw();
 	uint winh();
+
+	float dpih();
+	float dpiw();
 }
