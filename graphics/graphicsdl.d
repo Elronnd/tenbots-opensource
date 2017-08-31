@@ -52,8 +52,8 @@ final class Graphicsdl: Graphics {
 		}
 
 		window = SDL_CreateWindow("Ten bots", gprefs.x, gprefs.y,
-				gprefs.winwidth ? gprefs.winwidth : 1366,
-				gprefs.winheight ? gprefs.winheight : 768,
+				gprefs.winwidth ? gprefs.winwidth : screenw(),
+				gprefs.winheight ? gprefs.winheight : screenh(),
 				() {
 					SDL_WindowFlags ret = gprefs.borderless ? SDL_WINDOW_BORDERLESS : cast(SDL_WindowFlags)0;
 
