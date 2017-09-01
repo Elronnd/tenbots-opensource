@@ -128,4 +128,21 @@ final class Graphicsdl: Graphics {
 
 		SDL_FreeSurface(surf);
 	}
+
+	bool istruefullscreen() {
+		return cast(bool)(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN);
+	}
+	void settruefullscreen(bool state) {
+		if (SDL_SetWindowFullscreen(window, state ? SDL_WINDOW_FULLSCREEN : 0) < 0)
+			sdlerror();
+	}
+
+	bool isdesktopfullscreen() {
+		// I've said it before, and I'll say it again.  In D int doesn't automatically coerce to int and that's fucking retarted!
+		return cast(bool)(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
+	void setdesktopfullscreen(bool state) {
+		if (SDL_SetWindowFullscreen(window, state ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) < 0)
+			sdlerror();
+	}
 }

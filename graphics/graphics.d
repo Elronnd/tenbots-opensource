@@ -43,4 +43,16 @@ interface Graphics {
 
 	float dpih();
 	float dpiw();
+
+	bool istruefullscreen();
+	void settruefullscreen(bool state);
+	final void toggletruefullscreen() {
+		settruefullscreen(!istruefullscreen());
+	}
+
+	bool isdesktopfullscreen();
+	void setdesktopfullscreen(bool state);
+	final void toggledesktopfullscreen() {
+		setdesktopfullscreen(!isdesktopfullscreen());
+	}
 }
