@@ -39,6 +39,15 @@ final class Graphicsdl: Graphics {
 
 		return ret;
 	}
+	void setwinw(uint w) {
+		SDL_SetWindowSize(window, w, winh());
+	}
+	void setwinh(uint h) {
+		SDL_SetWindowSize(window, winw(), h);
+	}
+	void setwinsize(uint w, uint h) {
+		SDL_SetWindowSize(window, w, h);
+	}
 
 	float dpih() {
 		float ret;

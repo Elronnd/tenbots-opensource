@@ -66,4 +66,8 @@ interface Graphics {
 
 	void getlogicalsize(ref uint w, ref uint h);
 	void setlogicalsize(uint w, uint h);
+
+	void setwinw(uint w);
+	void setwinh(uint h);
+	void setwinsize(uint w, uint h);
 }
