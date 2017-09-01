@@ -159,4 +159,12 @@ final class Graphicsdl: Graphics {
 	void setborders(bool on) {
 		SDL_SetWindowBordered(window, on ? SDL_TRUE : SDL_FALSE);
 	}
+
+	void getlogicalsize(ref uint w, ref uint h) {
+		SDL_RenderGetLogicalSize(renderer, cast(int*)&w, cast(int*)&h);
+	}
+	void setlogicalsize(uint w, uint h) {
+		if (SDL_RenderSetLogicalSize(renderer, w, h) < 0)
+			sdlerror();
+	}
 }

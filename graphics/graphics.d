@@ -63,4 +63,7 @@ interface Graphics {
 	final void toggleborders() {
 		setborders(!hasborders());
 	}
+
+	void getlogicalsize(ref uint w, ref uint h);
+	void setlogicalsize(uint w, uint h);
 }
