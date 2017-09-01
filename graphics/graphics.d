@@ -1,5 +1,7 @@
 module graphics.graphics;
 
+import graphics.scancode;
+
 package enum Gfx_type {
 	GRAPHICS_NONE,
 	GRAPHICS_SDL,
@@ -26,6 +28,20 @@ struct GraphicsPrefs {
 	Fullscreenstate fullscreen = Fullscreenstate.None;
 	bool borderless = true;
 }
+
+enum Evtype {
+	Keydown,
+	Keyup,
+}
+
+class Event {
+	union {
+		Key key;
+	}
+
+	Evtype type;
+}
+
 
 interface Graphics {
 	void init(GraphicsPrefs prefs);
@@ -70,4 +86,7 @@ interface Graphics {
 	void setwinw(uint w);
 	void setwinh(uint h);
 	void setwinsize(uint w, uint h);
+
+	Event pollevent();
+	Event waitevent();
 }

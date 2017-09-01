@@ -1,6 +1,7 @@
 module graphics.sdl;
 
 import graphics.graphics;
+import graphics.scancode;
 import derelict.sdl2.image, derelict.sdl2.sdl;
 
 
@@ -174,5 +175,27 @@ final class Graphicsdl: Graphics {
 	void setlogicalsize(uint w, uint h) {
 		if (SDL_RenderSetLogicalSize(renderer, w, h) < 0)
 			sdlerror();
+	}
+
+	Event pollevent() {
+		SDL_Event ev;
+
+		if (SDL_PollEvent(&ev) && ev.type == SDL_KEYDOWN || ev.type == SDL_KEYUP) {
+			Event ret = new Event();
+			ret.key = sdltokey(ev.key.keysym.sym);
+			ret.type = (ev.type == SDL_KEYDOWN) ? Evtype.Keydown : Evtype.Keyup;
+
+			return ret;
+		} else {
+			return null;
+		}
+	}
+
+	Event waitevent() {
+		return new Event();
+	}
+
+	private Key sdltokey(SDL_Keycode sdl) {
+		return Key.a;
 	}
 }
