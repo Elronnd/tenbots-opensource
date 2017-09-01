@@ -19,9 +19,11 @@ final class Graphicsdl: Graphics {
 			DerelictSDL2Image.load();
 		}
 
-		if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS) < 0) {
+		if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS) < 0)
 			sdlerror();
-		}
+		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
+			sdlerror();
+
 
 		window = SDL_CreateWindow(null, gprefs.x, gprefs.y,
 				gprefs.winwidth ? gprefs.winwidth : screenw(),
@@ -48,6 +50,7 @@ final class Graphicsdl: Graphics {
 	}
 	void end() {
 		SDL_Quit();
+		IMG_Quit();
 	}
 
 	void placesprite(Sprite s, int x, int y) {
