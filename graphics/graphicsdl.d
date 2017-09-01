@@ -12,56 +12,6 @@ private void sdlerror() {
 final class Graphicsdl: Graphics {
 	private SDL_Window *window;
 	private SDL_Renderer *renderer;
-
-	uint screenw() {
-		SDL_DisplayMode dm;
-		if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
-			sdlerror();
-
-		return dm.w;
-	}
-	uint screenh() {
-		SDL_DisplayMode dm;
-		if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
-			sdlerror();
-
-		return dm.h;
-	}
-	uint winw() {
-		int ret;
-		SDL_GetWindowSize(window, &ret, null);
-
-		return ret;
-	}
-	uint winh() {
-		int ret;
-		SDL_GetWindowSize(window, null, &ret);
-
-		return ret;
-	}
-	void setwinw(uint w) {
-		SDL_SetWindowSize(window, w, winh());
-	}
-	void setwinh(uint h) {
-		SDL_SetWindowSize(window, winw(), h);
-	}
-	void setwinsize(uint w, uint h) {
-		SDL_SetWindowSize(window, w, h);
-	}
-
-	float dpih() {
-		float ret;
-		SDL_GetDisplayDPI(0, null, &ret, null);
-
-		return ret;
-	}
-	float dpiw() {
-		float ret;
-		SDL_GetDisplayDPI(0, null, null, &ret);
-
-		return ret;
-	}
-
 	void init(GraphicsPrefs gprefs) {
 		version (dynamic_sdl2) {
 			DerelictSDL2.load();
@@ -136,6 +86,55 @@ final class Graphicsdl: Graphics {
 		s.data = SDL_CreateTextureFromSurface(renderer, surf);
 
 		SDL_FreeSurface(surf);
+	}
+
+	uint screenw() {
+		SDL_DisplayMode dm;
+		if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
+			sdlerror();
+
+		return dm.w;
+	}
+	uint screenh() {
+		SDL_DisplayMode dm;
+		if (SDL_GetCurrentDisplayMode(0, &dm) != 0)
+			sdlerror();
+
+		return dm.h;
+	}
+	uint winw() {
+		int ret;
+		SDL_GetWindowSize(window, &ret, null);
+
+		return ret;
+	}
+	uint winh() {
+		int ret;
+		SDL_GetWindowSize(window, null, &ret);
+
+		return ret;
+	}
+	void setwinw(uint w) {
+		SDL_SetWindowSize(window, w, winh());
+	}
+	void setwinh(uint h) {
+		SDL_SetWindowSize(window, winw(), h);
+	}
+	void setwinsize(uint w, uint h) {
+		SDL_SetWindowSize(window, w, h);
+	}
+
+	float dpih() {
+		float ret;
+		SDL_GetDisplayDPI(0, null, &ret, null);
+
+		return ret;
+	}
+	float dpiw() {
+		float ret;
+		SDL_GetDisplayDPI(0, null, null, &ret);
+
+		return ret;
 	}
 
 	bool istruefullscreen() {
