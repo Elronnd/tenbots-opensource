@@ -145,4 +145,18 @@ final class Graphicsdl: Graphics {
 		if (SDL_SetWindowFullscreen(window, state ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) < 0)
 			sdlerror();
 	}
+
+	bool isvsync() {
+		SDL_RendererInfo ri;
+		SDL_GetRendererInfo(renderer, &ri);
+
+		return cast(bool)(ri.flags & SDL_RENDERER_PRESENTVSYNC);
+	}
+
+	bool hasborders() {
+		return !(SDL_GetWindowFlags(window) & SDL_WINDOW_BORDERLESS);
+	}
+	void setborders(bool on) {
+		SDL_SetWindowBordered(window, on ? SDL_TRUE : SDL_FALSE);
+	}
 }

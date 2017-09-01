@@ -55,4 +55,12 @@ interface Graphics {
 	final void toggledesktopfullscreen() {
 		setdesktopfullscreen(!isdesktopfullscreen());
 	}
+
+	bool isvsync();
+
+	bool hasborders();
+	void setborders(bool on);
+	final void toggleborders() {
+		setborders(!hasborders());
+	}
 }
