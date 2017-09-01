@@ -23,7 +23,7 @@ final class Graphicsdl: Graphics {
 			sdlerror();
 		}
 
-		window = SDL_CreateWindow("Ten bots", gprefs.x, gprefs.y,
+		window = SDL_CreateWindow(null, gprefs.x, gprefs.y,
 				gprefs.winwidth ? gprefs.winwidth : screenw(),
 				gprefs.winheight ? gprefs.winheight : screenh(),
 				() {
@@ -193,6 +193,12 @@ final class Graphicsdl: Graphics {
 
 	Event waitevent() {
 		return new Event();
+	}
+
+	void settitle(string title) {
+		import std.string: toStringz;
+
+		SDL_SetWindowTitle(window, toStringz(title));
 	}
 
 	private Key sdltokey(SDL_Keycode sdl) {

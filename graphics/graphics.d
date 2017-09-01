@@ -89,4 +89,6 @@ interface Graphics {
 
 	Event pollevent();
 	Event waitevent();
+
+	void settitle(string title);
 }
