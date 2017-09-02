@@ -24,6 +24,8 @@ final class Graphicsdl: Graphics {
 		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
 			sdlerror();
 
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
 
 		window = SDL_CreateWindow(null, gprefs.x, gprefs.y,
 				gprefs.winwidth ? gprefs.winwidth : screenw(),
