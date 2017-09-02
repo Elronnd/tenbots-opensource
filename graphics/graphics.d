@@ -10,6 +10,7 @@ package enum Gfx_type {
 
 struct Sprite {
 	int overridew = -1, overrideh = -1;
+	double scalefactor = 1;
 
 	package {
 		void *data;

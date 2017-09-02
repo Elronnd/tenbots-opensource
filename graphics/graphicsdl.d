@@ -69,6 +69,8 @@ final class Graphicsdl: Graphics {
 
 		if (s.overridew > -1) rect.w = s.overridew;
 		if (s.overrideh > -1) rect.h = s.overrideh;
+		rect.w *= s.scalefactor;
+		rect.h *= s.scalefactor;
 
 		SDL_RenderCopy(renderer, cast(SDL_Texture*)s.data, null, &rect);
 	}
