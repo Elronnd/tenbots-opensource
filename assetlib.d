@@ -1,4 +1,6 @@
 // This entire thing is heavily based on https://p0nce.github.io/d-idioms/#Embed-a-dynamic-library-in-an-executable
+module assetlib;
+
 
 private struct Fdesc {
 	string fname;
@@ -18,15 +20,15 @@ pragma(inline, true) public void regasset(string id, string fpath)() {
 	fdata[id] = Fdesc(array(splitter(fpath, dirSeparator))[$-1], cast(ubyte[])import(fpath));
 }
 
-pragma(inline, true) public const(ubyte[]) getdata(string id)() {
+pragma(inline, true) public const(ubyte[]) assetdata(string id)() {
 	return fdata[id].data;
 }
 
-pragma(inline, true) public const(string) getfname(string id)() {
+pragma(inline, true) public const(string) assetfname(string id)() {
 	return fdata[id].fname;
 }
 
-public string writefile(string id)() {
+public string assetpath(string id)() {
 	if (!fdata[id].fexists) {
 		import std.string: lastIndexOf;
 		import std.path: tempDir, buildPath;
