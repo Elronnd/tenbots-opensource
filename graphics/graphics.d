@@ -52,6 +52,9 @@ interface Graphics {
 	void blit();
 	void loadsprite(ref Sprite sprite, string fpath);
 
+	void loadfont(string path, uint index, uint height=36);
+	void rendertext(ref Sprite sprite, string text, uint font);
+
 	uint screenw();
 	uint screenh();
 

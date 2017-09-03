@@ -2,7 +2,7 @@ module graphics.sdl;
 
 import graphics.graphics;
 import graphics.scancode;
-import derelict.sdl2.image, derelict.sdl2.sdl;
+import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf;
 
 
 private void sdlerror() {
@@ -13,15 +13,20 @@ private void sdlerror() {
 final class Graphicsdl: Graphics {
 	private SDL_Window *window;
 	private SDL_Renderer *renderer;
+	private TTF_Font*[uint] fonts;
+
 	void init(GraphicsPrefs gprefs) {
 		version (dynamic_sdl2) {
 			DerelictSDL2.load();
 			DerelictSDL2Image.load();
+			DerelictSDL2TTF.load();
 		}
 
 		if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS) < 0)
 			sdlerror();
 		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
+			sdlerror();
+		if (TTF_Init() == -1)
 			sdlerror();
 
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
@@ -51,8 +56,12 @@ final class Graphicsdl: Graphics {
 		}
 	}
 	void end() {
-		SDL_Quit();
+		foreach (font; fonts.values)
+			TTF_CloseFont(font);
+
+		TTF_Quit();
 		IMG_Quit();
+		SDL_Quit();
 	}
 
 	void placesprite(Sprite s, int x, int y) {
@@ -93,6 +102,21 @@ final class Graphicsdl: Graphics {
 
 		s.data = SDL_CreateTextureFromSurface(renderer, surf);
 
+		SDL_FreeSurface(surf);
+	}
+	void loadfont(string path, uint index, uint height=18) {
+		import std.string: toStringz;
+
+		fonts[index] = TTF_OpenFont(toStringz(path), height);
+		if (!fonts[index]) sdlerror();
+	}
+	void rendertext(ref Sprite sprite, string text, uint font) {
+		import std.string: toStringz;
+		sprite.gfx_type = Gfx_type.GRAPHICS_SDL;
+
+		SDL_Color white = SDL_Color(255, 255, 255, 0);
+		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
+		sprite.data = SDL_CreateTextureFromSurface(renderer, surf);
 		SDL_FreeSurface(surf);
 	}
 
