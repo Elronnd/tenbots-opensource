@@ -35,7 +35,7 @@ public string assetpath(string id)() {
 		import std.uuid: randomUUID;
 		import std.file: write;
 
-		string path, fname = getfname!(id);
+		string path, fname = assetfname!id;
 
 		// Keep the extension.  So if it's something like "foo.barbaz.ogg", change it to "foo.barbaz-someuniqueid.ogg"
 		auto idx = lastIndexOf(fname, ".");
@@ -49,7 +49,7 @@ public string assetpath(string id)() {
 
 		path = buildPath(tempDir(), path);
 
-		write(path, getdata!(id));
+		write(path, assetdata!id);
 
 		fdata[id].fexists = true;
 		fdata[id].newfname = path;
