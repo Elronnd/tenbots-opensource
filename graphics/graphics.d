@@ -1,6 +1,7 @@
 module graphics.graphics;
 
 import graphics.scancode;
+import maybe;
 
 package enum Gfx_type {
 	GRAPHICS_NONE,
@@ -35,6 +36,10 @@ enum Evtype {
 	Keyup,
 }
 
+struct Colour {
+	ubyte r, g, b, a = 255;
+}
+
 class Event {
 	union {
 		Key key;
@@ -47,13 +52,13 @@ class Event {
 interface Graphics {
 	void init(GraphicsPrefs prefs);
 	void end();
-	void placesprite(Sprite s, int x, int y);
+	void placesprite(Sprite s, int x, int y, Maybe!Colour clrmod = nothing!Colour, Maybe!Colour bg = nothing!Colour);
 	void clear();
 	void blit();
 	void loadsprite(ref Sprite sprite, string fpath);
 
 	void loadfont(string path, uint index, uint height=36);
-	void rendertext(ref Sprite sprite, string text, uint font);
+	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour);
 
 	uint screenw();
 	uint screenh();

@@ -2,6 +2,7 @@ module graphics.sdl;
 
 import graphics.graphics;
 import graphics.scancode;
+import maybe;
 import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf;
 
 
@@ -64,7 +65,7 @@ final class Graphicsdl: Graphics {
 		SDL_Quit();
 	}
 
-	void placesprite(Sprite s, int x, int y) {
+	void placesprite(Sprite s, int x, int y, Maybe!Colour clrmod, Maybe!Colour bg) {
 		if (s.gfx_type != Gfx_type.GRAPHICS_SDL)
 			throw new Exception("Tried to draw a non-sdl sprite using sdl rendering!");
 
@@ -80,6 +81,16 @@ final class Graphicsdl: Graphics {
 		if (s.overrideh > -1) rect.h = s.overrideh;
 		rect.w *= s.scalefactor;
 		rect.h *= s.scalefactor;
+
+		if (bg.isset) {
+			SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
+			SDL_RenderFillRect(renderer, &rect);
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		}
+
+		if (clrmod.isset) {
+			SDL_SetTextureColorMod(cast(SDL_Texture*)s.data, clrmod.r, clrmod.g, clrmod.b);
+		}
 
 		SDL_RenderCopy(renderer, cast(SDL_Texture*)s.data, null, &rect);
 	}
@@ -110,13 +121,17 @@ final class Graphicsdl: Graphics {
 		fonts[index] = TTF_OpenFont(toStringz(path), height);
 		if (!fonts[index]) sdlerror();
 	}
-	void rendertext(ref Sprite sprite, string text, uint font) {
+	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour) {
 		import std.string: toStringz;
 		sprite.gfx_type = Gfx_type.GRAPHICS_SDL;
 
 		SDL_Color white = SDL_Color(255, 255, 255, 0);
 		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
 		sprite.data = SDL_CreateTextureFromSurface(renderer, surf);
+
+		if (clr.isset)
+			SDL_SetTextureColorMod(cast(SDL_Texture*)sprite.data, clr.r, clr.g, clr.b);
+
 		SDL_FreeSurface(surf);
 	}
 

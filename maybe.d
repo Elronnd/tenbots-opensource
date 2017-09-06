@@ -2,6 +2,9 @@ module maybe;
 
 class Maybe(T) {
 	abstract T opCall(T defaultVal);
+	abstract bool isset();
+	public T _val;
+	alias _val this;
 }
 
 Maybe!T just(T)(T val) {
@@ -9,11 +12,12 @@ Maybe!T just(T)(T val) {
 		this(T val) {
 			_val = val;
 		}
+
 		override T opCall(T defaultVal) {
 			return _val;
 		}
 
-		private T _val;
+		override bool isset() { return true; }
 	}
 
 	return new Just!T(val);
@@ -24,6 +28,8 @@ Maybe!T nothing(T)() {
 		override T opCall(T defaultVal) {
 			return defaultVal;
 		}
+
+		override bool isset() { return false; }
 	}
 
 	return new Nothing!T;
