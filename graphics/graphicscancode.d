@@ -250,3 +250,25 @@ enum Key {
 	eject,
 	sleep
 }
+
+string tostr(Key key) {
+	string[Key] dict;
+
+	static foreach (asstr; [__traits(allMembers, Key)]) {
+		mixin("dict[Key." ~ asstr ~ "] = \"" ~ asstr ~ "\";");
+	}
+
+	return dict[key];
+}
+
+Key tokey(string str) {
+	Key[string] dict;
+
+	static foreach (asstr; [__traits(allMembers, Key)]) {
+		mixin("dict[\"" ~ asstr ~ "\"] = Key." ~ asstr ~ ";");
+	}
+
+	Key *ret;
+
+	return ((ret = (str in dict)) !is null) ? *ret : Key.unknown;
+}
