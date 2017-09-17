@@ -252,23 +252,35 @@ enum Key {
 }
 
 string tostr(Key key) {
-	string[Key] dict;
+	// This version guard DOESN'T FUCKING WORK and I don't know why
+	version (DigitalMars) {
+		string[Key] dict;
 
-	static foreach (asstr; [__traits(allMembers, Key)]) {
-		mixin("dict[Key." ~ asstr ~ "] = \"" ~ asstr ~ "\";");
+		static foreach (asstr; [__traits(allMembers, Key)]) {
+			mixin("dict[Key." ~ asstr ~ "] = \"" ~ asstr ~ "\";");
+		}
+
+		return dict[key];
+	} else {
+		pragma(msg, "Conversions between keys and strings are non-operational.  This may cause issues.");
+		return "";
 	}
-
-	return dict[key];
 }
 
 Key tokey(string str) {
-	Key[string] dict;
+	// this one too
+	version (DigitalMars) {
+		Key[string] dict;
 
-	static foreach (asstr; [__traits(allMembers, Key)]) {
-		mixin("dict[\"" ~ asstr ~ "\"] = Key." ~ asstr ~ ";");
+		static foreach (asstr; [__traits(allMembers, Key)]) {
+			mixin("dict[\"" ~ asstr ~ "\"] = Key." ~ asstr ~ ";");
+		}
+
+		Key *ret;
+
+		return ((ret = (str in dict)) !is null) ? *ret : Key.unknown;
+	} else {
+		pragma(msg, "Conversions between keys and strings are non-operations.  This may cause issues.");
+		return Key.unknown;
 	}
-
-	Key *ret;
-
-	return ((ret = (str in dict)) !is null) ? *ret : Key.unknown;
 }
