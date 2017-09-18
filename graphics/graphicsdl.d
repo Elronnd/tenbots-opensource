@@ -223,22 +223,22 @@ final class Graphicsdl: Graphics {
 			sdlerror();
 	}
 
-	Event pollevent() {
+	Maybe!Event pollevent() {
 		SDL_Event ev;
 
 		if (SDL_PollEvent(&ev) && ev.type == SDL_KEYDOWN || ev.type == SDL_KEYUP) {
-			Event ret = new Event();
+			Event ret;
 			ret.key = sdltokey(ev.key.keysym.sym);
 			ret.type = (ev.type == SDL_KEYDOWN) ? Evtype.Keydown : Evtype.Keyup;
 
-			return ret;
+			return just(ret);
 		} else {
-			return null;
+			return nothing!Event;
 		}
 	}
 
 	Event waitevent() {
-		return new Event();
+		return Event();
 	}
 
 	void settitle(string title) {

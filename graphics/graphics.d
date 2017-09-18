@@ -9,6 +9,69 @@ package enum Gfx_type {
 	GRAPHICS_SFML
 }
 
+struct Point {
+	int x, y;
+}
+
+
+struct Rect {
+	int x, y, w, h;
+
+	Point topleft() {
+		return Point(x, y);
+	}
+
+	Point bottomleft() {
+		return Point(x, y + h);
+	}
+
+	Point topright() {
+		return Point(x + w, y);
+	}
+
+	Point bottomright() {
+		return Point(x + w, y + h);
+	}
+
+
+
+	bool collides(Rect other) {
+		import std.math: abs;
+
+		return (abs(x - other.x) * 2 <= (w + other.w)) &&
+			(abs(y - other.y) * 2 <= (h + other.h));
+	}
+
+
+
+	unittest {
+		// same shape
+		foreach (_; 0 .. 1000) {
+			import std.random: uniform, rndGen;
+
+			// c and d are unsigned because how can you have negative length?
+			int a = uniform!short(rndGen()), b = uniform!short(rndGen()), c = uniform!ushort(rndGen()), d = uniform!ushort(rndGen());
+
+			assert (Rect(a, b, c, d).collides(Rect(a, b, c, d)));
+		}
+
+		assert (Rect(5, 9, 7, 4).collides(Rect(5, 9, 7, 4)));
+
+
+
+		// failure
+		assert (!Rect(3, 2, 7, 2).collides(Rect(0, 0, 2, 1)));
+
+		// Contact along one line
+		assert (Rect(3, 2, 7, 2).collides(Rect(0, 0, 3, 2)));
+
+		// Contact along one point
+		assert (Rect(3, 2, 7, 2).collides(Rect(0, 0, 3, 2)));
+
+
+	}
+}
+
 struct Sprite {
 	int overridew = -1, overrideh = -1;
 	double scalefactor = 1;
@@ -31,16 +94,17 @@ struct GraphicsPrefs {
 	bool borderless = true;
 }
 
+struct Colour {
+	ubyte r, g, b, a = 255;
+}
+
 enum Evtype {
 	Keydown,
 	Keyup,
 }
 
-struct Colour {
-	ubyte r, g, b, a = 255;
-}
 
-class Event {
+struct Event {
 	union {
 		Key key;
 	}
@@ -96,7 +160,7 @@ interface Graphics {
 	void setwinh(uint h);
 	void setwinsize(uint w, uint h);
 
-	Event pollevent();
+	Maybe!Event pollevent();
 	Event waitevent();
 
 	void settitle(string title);
