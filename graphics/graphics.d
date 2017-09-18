@@ -46,8 +46,8 @@ struct Rect {
 			oy2 = other.y + other.h;
 
 
-		immutable bool xcollides = ((x1 < ox1) && (ox1 < x2)) || ((x1 < ox2) && (ox2 < x2)),
-				ycollides = ((y1 < oy1) && (oy1 < y2)) || ((y1 < oy2) && (oy2 < y2));
+		immutable bool xcollides = ((x1 <= ox1) && (ox1 <= x2)) || ((x1 <= ox2) && (ox2 <= x2)),
+				ycollides = ((y1 <= oy1) && (oy1 <= y2)) || ((y1 <= oy2) && (oy2 <= y2));
 
 		return xcollides && ycollides;
 
@@ -77,7 +77,7 @@ struct Rect {
 		assert (!Rect(3, 2, 7, 2).collides(Rect(0, 0, 2, 1)));
 
 		// Contact along one line
-		assert (Rect(3, 2, 7, 2).collides(Rect(0, 0, 3, 2)));
+		assert (Rect(3, 2, 7, 2).collides(Rect(0, 2, 3, 0)));
 
 		// Contact along one point
 		assert (Rect(3, 2, 7, 2).collides(Rect(0, 0, 3, 2)));
