@@ -35,13 +35,27 @@ struct Rect {
 
 
 
-	bool collides(Rect other) {
-		import std.math: abs;
+	pure bool collides(Rect other) {
+		immutable int x1 = x,
+			y1 = y,
+			x2 = x + w,
+			y2 = y + h,
+			ox1 = other.x,
+			oy1 = other.y,
+			ox2 = other.x + other.w,
+			oy2 = other.y + other.h;
 
-		return (abs(x - other.x) * 2 <= (w + other.w)) &&
-			(abs(y - other.y) * 2 <= (h + other.h));
+
+		immutable bool xcollides = ((x1 < ox1) && (ox1 < x2)) || ((x1 < ox2) && (ox2 < x2)),
+				ycollides = ((y1 < oy1) && (oy1 < y2)) || ((y1 < oy2) && (oy2 < y2));
+
+		return xcollides && ycollides;
+
+		// This solution passes the unittests, but it fails when actually plaing.  *shrug*
+		//return (abs(x - other.x) * 2 <= (w + other.w)) &&
+		//	(abs(y - other.y) * 2 <= (h + other.h));
+
 	}
-
 
 
 	unittest {
@@ -67,8 +81,6 @@ struct Rect {
 
 		// Contact along one point
 		assert (Rect(3, 2, 7, 2).collides(Rect(0, 0, 3, 2)));
-
-
 	}
 }
 
@@ -164,4 +176,6 @@ interface Graphics {
 	Event waitevent();
 
 	void settitle(string title);
+
+	Rect getrect(Sprite sprite);
 }

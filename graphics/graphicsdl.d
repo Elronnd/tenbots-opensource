@@ -496,4 +496,24 @@ final class Graphicsdl: Graphics {
 			SDLK_EJECT: Key.eject,
 			SDLK_SLEEP: Key.sleep][sdl];
 	}
+
+	Rect getrect(Sprite sprite) {
+		if (sprite.gfx_type != Gfx_type.GRAPHICS_SDL)
+			throw new Exception("Tried to draw a non-sdl sprite using sdl rendering!");
+
+		Rect ret;
+
+		SDL_QueryTexture(cast(SDL_Texture*)sprite.data, null, null, &ret.w, &ret.h);
+
+		if (sprite.overridew > -1)
+			ret.w = sprite.overridew;
+
+		if (sprite.overrideh > -1)
+			ret.h = sprite.overrideh;
+
+		ret.w *= sprite.scalefactor;
+		ret.h *= sprite.scalefactor;
+
+		return ret;
+	}
 }
