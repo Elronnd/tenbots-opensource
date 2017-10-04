@@ -24,6 +24,7 @@ final class Graphicsdl: Graphics {
 			DerelictSDL2.load();
 			DerelictSDL2Image.load();
 			DerelictSDL2TTF.load();
+			DerelictSDL2Mixer.load();
 		}
 
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0)
