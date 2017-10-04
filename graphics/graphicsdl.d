@@ -34,7 +34,7 @@ final class Graphicsdl: Graphics {
 		if (TTF_Init() == -1)
 			sdlerror();
 		{
-			int mix_flags = MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG;
+			int mix_flags = MIX_INIT_FLAC | MIX_INIT_MP3 | MIX_INIT_OGG;
 
 			if ((Mix_Init(mix_flags) & mix_flags) != mix_flags)
 				sdlerror();
