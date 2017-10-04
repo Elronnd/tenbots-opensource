@@ -4,10 +4,10 @@ import graphics.graphics;
 import graphics.scancode;
 import maybe;
 import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.sdl2.mixer;
+import std.string: fromStringz, toStringz;
 
 
 private void sdlerror() {
-	import std.string: fromStringz;
 	throw new Exception(cast(string)("Error from SDL.  SDL says: " ~ fromStringz(SDL_GetError())));
 }
 
@@ -36,7 +36,7 @@ final class Graphicsdl: Graphics {
 		{
 			int mix_flags = MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG;
 
-			if ((Mix_init(mix_flags) & flags) != mix_flags)
+			if ((Mix_Init(mix_flags) & mix_flags) != mix_flags)
 				sdlerror();
 		}
 		if (Mix_OpenAudio(44_100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
@@ -124,8 +124,6 @@ final class Graphicsdl: Graphics {
 	}
 
 	void loadsprite(ref Sprite s, string fpath) {
-		import std.string: toStringz;
-
 		SDL_Surface *surf = IMG_Load(toStringz(fpath));
 		if (!surf) sdlerror();
 
@@ -134,14 +132,10 @@ final class Graphicsdl: Graphics {
 		SDL_FreeSurface(surf);
 	}
 	void loadfont(string path, uint index, uint height=18) {
-		import std.string: toStringz;
-
 		fonts[index] = TTF_OpenFont(toStringz(path), height);
 		if (!fonts[index]) sdlerror();
 	}
 	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour) {
-		import std.string: toStringz;
-
 		SDL_Color white = SDL_Color(255, 255, 255, 0);
 		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
 		sprite.data = SDL_CreateTextureFromSurface(renderer, surf);
@@ -259,8 +253,6 @@ final class Graphicsdl: Graphics {
 	}
 
 	void settitle(string title) {
-		import std.string: toStringz;
-
 		SDL_SetWindowTitle(window, toStringz(title));
 	}
 
@@ -532,7 +524,7 @@ final class Graphicsdl: Graphics {
 	}
 
 	void regsong(string path, uint index) {
-		Mix_Music *tmp = Mix_LoadMUS(path);
+		Mix_Music *tmp = Mix_LoadMUS(toStringz(path));
 
 		if (tmp is null) {
 			sdlerror();
@@ -542,7 +534,7 @@ final class Graphicsdl: Graphics {
 	}
 
 	void regsfx(string path, uint index) {
-		Mix_Chunk *tmp = Mix_LoadWAV(path);
+		Mix_Chunk *tmp = Mix_LoadWAV(toStringz(path));
 
 		if (tmp is null) {
 			sdlerror();
