@@ -3,7 +3,7 @@ module graphics.sdl;
 import graphics.graphics;
 import graphics.scancode;
 import maybe;
-import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf;
+import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.sdl2.mixer;
 
 
 private void sdlerror() {
@@ -16,6 +16,9 @@ final class Graphicsdl: Graphics {
 	private SDL_Renderer *renderer;
 	private TTF_Font*[uint] fonts;
 
+	private Mix_Music*[uint] songs;
+	private Mix_Chunk*[uint] sfx;
+
 	void init(GraphicsPrefs gprefs) {
 		version (dynamic_sdl2) {
 			DerelictSDL2.load();
@@ -23,12 +26,22 @@ final class Graphicsdl: Graphics {
 			DerelictSDL2TTF.load();
 		}
 
-		if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS) < 0)
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0)
 			sdlerror();
 		if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
 			sdlerror();
 		if (TTF_Init() == -1)
 			sdlerror();
+		{
+			int mix_flags = MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG;
+
+			if ((Mix_init(mix_flags) & flags) != mix_flags)
+				sdlerror();
+		}
+		if (Mix_OpenAudio(44_100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+			sdlerror();
+
+
 
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
@@ -57,11 +70,21 @@ final class Graphicsdl: Graphics {
 		}
 	}
 	void end() {
-		foreach (font; fonts.values)
+		foreach (font; fonts.values) {
 			TTF_CloseFont(font);
+		}
+		foreach (song; songs.values) {
+			Mix_FreeMusic(song);
+		}
+		foreach (effect; sfx.values) {
+			Mix_FreeChunk(effect);
+		}
+
+		Mix_CloseAudio();
 
 		TTF_Quit();
 		IMG_Quit();
+		Mix_Quit();
 		SDL_Quit();
 	}
 
@@ -505,5 +528,83 @@ final class Graphicsdl: Graphics {
 		ret.h *= sprite.scalefactor;
 
 		return ret;
+	}
+
+	void regsong(string path, uint index) {
+		Mix_Music *tmp = Mix_LoadMUS(path);
+
+		if (tmp is null) {
+			sdlerror();
+		} else {
+			songs[index] = tmp;
+		}
+	}
+
+	void regsfx(string path, uint index) {
+		Mix_Chunk *tmp = Mix_LoadWAV(path);
+
+		if (tmp is null) {
+			sdlerror();
+		} else {
+			sfx[index] = tmp;
+		}
+	}
+
+	void startsong(uint index, int loops = -1) {
+		// # of loops actually works sensibly with music
+		Mix_PlayMusic(songs[index], loops);
+	}
+	void fadeinsong(uint index, uint ms, int loop = -1) {
+		Mix_FadeInMusic(songs[index], loop, ms);
+	}
+	bool song_is_playing() {
+		return !Mix_PausedMusic();
+	}
+	void pausesong() {
+		Mix_PauseMusic();
+	}
+	void unpausesong() {
+		Mix_ResumeMusic();
+	}
+	void togglepausesong() {
+		song_is_playing() ? pausesong() : unpausesong();
+	}
+	void musicstop() {
+		Mix_HaltMusic();
+	}
+
+	void playsfx(uint index, int loops = 1) {
+		// If -1 was passed in, then we pass -1 along for infinite loops
+		// But otherwise, according to sdl, loops means EXTRA loops so
+		// we remove 1 to make it just regular number of loops.  And if
+		// you pass in 0 for number of loops then loop 0 times
+
+		if (loops == 0) {
+			return;
+		} else {
+			Mix_PlayChannel(-1, sfx[index], (loops < 0) ? -1 : loops-1);
+		}
+	}
+
+
+	uint getvolume() {
+		// Get volume
+		uint ret = Mix_Volume(-1, -1);
+
+		// normalize volume, in case it isn't already
+		Mix_Volume(-1, ret);
+
+		return ret;
+	}
+
+	void adjustvolume(byte amount) {
+		Mix_Volume(-1, getvolume() + amount);
+	}
+
+	void raisevolume(ubyte amount) {
+		adjustvolume(amount);
+	}
+	void lowervolume(ubyte amount) {
+		adjustvolume(-amount);
 	}
 }
