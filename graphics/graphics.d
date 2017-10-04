@@ -169,4 +169,27 @@ interface Graphics {
 	void settitle(string title);
 
 	Rect getrect(Sprite sprite);
+
+
+	void regsong(string path, uint index);
+
+	void regsfx(string path, uint index);
+
+	void startsong(uint index, int loops = -1);
+	void fadeinsong(uint index, uint ms, int loop = -1);
+	bool song_is_playing();
+	void pausesong();
+	void unpausesong();
+	void togglepausesong();
+	void musicstop();
+
+	void playsfx(uint index, int loops = 1);
+
+
+	uint getvolume();
+
+	void adjustvolume(byte amount);
+
+	void raisevolume(ubyte amount);
+	void lowervolume(ubyte amount);
 }
