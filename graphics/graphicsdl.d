@@ -66,10 +66,6 @@ final class Graphicsdl: Graphics {
 	}
 
 	void placesprite(Sprite s, int x, int y, Maybe!Colour clrmod, Maybe!Colour bg) {
-		if (s.gfx_type != Gfx_type.GRAPHICS_SDL)
-			throw new Exception("Tried to draw a non-sdl sprite using sdl rendering!");
-
-
 		SDL_Rect rect;
 
 		rect.x = x;
@@ -106,8 +102,6 @@ final class Graphicsdl: Graphics {
 	void loadsprite(ref Sprite s, string fpath) {
 		import std.string: toStringz;
 
-		s.gfx_type = Gfx_type.GRAPHICS_SDL;
-
 		SDL_Surface *surf = IMG_Load(toStringz(fpath));
 		if (!surf) sdlerror();
 
@@ -123,7 +117,6 @@ final class Graphicsdl: Graphics {
 	}
 	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour) {
 		import std.string: toStringz;
-		sprite.gfx_type = Gfx_type.GRAPHICS_SDL;
 
 		SDL_Color white = SDL_Color(255, 255, 255, 0);
 		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
@@ -498,9 +491,6 @@ final class Graphicsdl: Graphics {
 	}
 
 	Rect getrect(Sprite sprite) {
-		if (sprite.gfx_type != Gfx_type.GRAPHICS_SDL)
-			throw new Exception("Tried to draw a non-sdl sprite using sdl rendering!");
-
 		Rect ret;
 
 		SDL_QueryTexture(cast(SDL_Texture*)sprite.data, null, null, &ret.w, &ret.h);

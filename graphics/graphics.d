@@ -3,12 +3,6 @@ module graphics.graphics;
 import graphics.scancode;
 import maybe;
 
-package enum Gfx_type {
-	GRAPHICS_NONE,
-	GRAPHICS_SDL,
-	GRAPHICS_SFML
-}
-
 struct Point {
 	int x, y;
 }
@@ -88,10 +82,7 @@ struct Sprite {
 	int overridew = -1, overrideh = -1;
 	double scalefactor = 1;
 
-	package {
-		void *data;
-		Gfx_type gfx_type;
-	}
+	package void *data;
 }
 
 struct GraphicsPrefs {
