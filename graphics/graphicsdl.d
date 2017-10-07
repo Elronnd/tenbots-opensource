@@ -1,6 +1,5 @@
 module graphics.sdl;
 
-import core.sync.mutex: Mutex;
 import std.string: fromStringz, toStringz;
 
 import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.sdl2.mixer;
@@ -18,29 +17,22 @@ private void sdlerror() {
 private {
 	// We have to make it shared.  It's not optimal, but TLS is even worse.
 	SDL_Window *window;
-	Mutex window_mutex;
 
 	SDL_Renderer *renderer;
-	Mutex renderer_mutex;
 
 	TTF_Font*[uint] fonts;
-	Mutex font_mutex;
 
 	Mix_Music*[uint] songs;
 	Mix_Chunk*[uint] sfx;
-	Mutex song_mutex, sfx_mutex;
-
-	bool initialized;
 }
 
 
 static struct Graphics {
 	void init(GraphicsPrefs gprefs) {
-		if (initialized) {
+		// saving 1 byte of ram, at ketmar's insistance
+		if (window) {
 			return;
 		}
-
-		initialized = true;
 
 		version (dynamic_sdl2) {
 			DerelictSDL2.load();
