@@ -1,25 +1,46 @@
 module graphics.sdl;
 
+import core.sync.mutex: Mutex;
+import std.string: fromStringz, toStringz;
+
+import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.sdl2.mixer;
+
 import graphics.graphics;
 import graphics.scancode;
 import maybe;
-import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.sdl2.mixer;
-import std.string: fromStringz, toStringz;
 
 
 private void sdlerror() {
 	throw new Exception(cast(string)("Error from SDL.  SDL says: " ~ fromStringz(SDL_GetError())));
 }
 
-final class Graphicsdl: Graphics {
-	private SDL_Window *window;
-	private SDL_Renderer *renderer;
-	private TTF_Font*[uint] fonts;
 
-	private Mix_Music*[uint] songs;
-	private Mix_Chunk*[uint] sfx;
+private __gshared {
+	// We have to make it shared.  It's not optimal, but TLS is even worse.
+	SDL_Window *window;
+	Mutex window_mutex;
 
+	SDL_Renderer *renderer;
+	Mutex renderer_mutex;
+
+	TTF_Font*[uint] fonts;
+	Mutex font_mutex;
+
+	Mix_Music*[uint] songs;
+	Mix_Chunk*[uint] sfx;
+	Mutex song_mutex, sfx_mutex;
+
+	bool initialized, initializing;
+}
+
+
+static struct Graphics {
 	void init(GraphicsPrefs gprefs) {
+		if (initialized || initializing) {
+			return;
+		}
+		initializing = true;
+
 		version (dynamic_sdl2) {
 			DerelictSDL2.load();
 			DerelictSDL2Image.load();
@@ -69,7 +90,12 @@ final class Graphicsdl: Graphics {
 		if (gprefs.logicalwidth || gprefs.logicalheight) {
 			SDL_RenderSetLogicalSize(renderer, gprefs.logicalwidth ? gprefs.logicalwidth : screenw(), gprefs.logicalheight ? gprefs.logicalheight : screenh());
 		}
+
+		initialized = true;
+		initializing = false;
 	}
+
+
 	void end() {
 		foreach (font; fonts.values) {
 			TTF_CloseFont(font);
@@ -87,6 +113,8 @@ final class Graphicsdl: Graphics {
 		IMG_Quit();
 		Mix_Quit();
 		SDL_Quit();
+
+		initialized = false;
 	}
 
 	void placesprite(Sprite s, int x, int y, Maybe!Colour clrmod, Maybe!Colour bg) {
@@ -103,42 +131,46 @@ final class Graphicsdl: Graphics {
 		rect.h *= s.scalefactor;
 
 		if (bg.isset) {
-			SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
-			SDL_RenderFillRect(renderer, &rect);
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+			synchronized (renderer_mutex) {
+				SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
+				SDL_RenderFillRect(renderer, &rect);
+				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+			}
 		}
 
 		if (clrmod.isset) {
 			SDL_SetTextureColorMod(cast(SDL_Texture*)s.data, clrmod.r, clrmod.g, clrmod.b);
 		}
 
-		SDL_RenderCopy(renderer, cast(SDL_Texture*)s.data, null, &rect);
+		synchronized (renderer_mutex) SDL_RenderCopy(renderer, cast(SDL_Texture*)s.data, null, &rect);
 	}
 
 	void clear() {
-		SDL_RenderClear(renderer);
+		synchronized (renderer_mutex) SDL_RenderClear(renderer);
 	}
 
 	void blit() {
-		SDL_RenderPresent(renderer);
+		synchronized (renderer_mutex) SDL_RenderPresent(renderer);
 	}
 
 	void loadsprite(ref Sprite s, string fpath) {
 		SDL_Surface *surf = IMG_Load(toStringz(fpath));
 		if (!surf) sdlerror();
 
-		s.data = SDL_CreateTextureFromSurface(renderer, surf);
+		synchronized (renderer_mutex) s.data = SDL_CreateTextureFromSurface(renderer, surf);
 
 		SDL_FreeSurface(surf);
 	}
 	void loadfont(string path, uint index, uint height=18) {
-		fonts[index] = TTF_OpenFont(toStringz(path), height);
-		if (!fonts[index]) sdlerror();
+		synchronized (font_mutex) {
+			fonts[index] = TTF_OpenFont(toStringz(path), height);
+			if (!fonts[index]) sdlerror();
+		}
 	}
 	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour) {
 		SDL_Color white = SDL_Color(255, 255, 255, 0);
-		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
-		sprite.data = SDL_CreateTextureFromSurface(renderer, surf);
+		synchronized (font_mutex) SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
+		synchronized (renderer_mutex) sprite.data = SDL_CreateTextureFromSurface(renderer, surf);
 
 		if (clr.isset)
 			SDL_SetTextureColorMod(cast(SDL_Texture*)sprite.data, clr.r, clr.g, clr.b);
@@ -173,13 +205,13 @@ final class Graphicsdl: Graphics {
 		return ret;
 	}
 	void setwinw(uint w) {
-		SDL_SetWindowSize(window, w, winh());
+		synchronized (window_mutex) SDL_SetWindowSize(window, w, winh());
 	}
 	void setwinh(uint h) {
-		SDL_SetWindowSize(window, winw(), h);
+		synchronized (window_mutex) SDL_SetWindowSize(window, winw(), h);
 	}
 	void setwinsize(uint w, uint h) {
-		SDL_SetWindowSize(window, w, h);
+		synchronized (window_mutex) SDL_SetWindowSize(window, w, h);
 	}
 
 	float dpih() {
@@ -196,41 +228,41 @@ final class Graphicsdl: Graphics {
 	}
 
 	bool istruefullscreen() {
-		return cast(bool)(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN);
+		synchronized (window_mutex) return cast(bool)(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN);
 	}
 	void settruefullscreen(bool state) {
-		if (SDL_SetWindowFullscreen(window, state ? SDL_WINDOW_FULLSCREEN : 0) < 0)
+		synchronized (window_mutex) if (SDL_SetWindowFullscreen(window, state ? SDL_WINDOW_FULLSCREEN : 0) < 0)
 			sdlerror();
 	}
 
 	bool isdesktopfullscreen() {
 		// I've said it before, and I'll say it again.  In D int doesn't automatically coerce to int and that's fucking retarted!
-		return cast(bool)(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP);
+		synchronized (window_mutex) return cast(bool)(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
 	void setdesktopfullscreen(bool state) {
-		if (SDL_SetWindowFullscreen(window, state ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) < 0)
+		synchronized (window_mutex) if (SDL_SetWindowFullscreen(window, state ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0) < 0)
 			sdlerror();
 	}
 
 	bool isvsync() {
 		SDL_RendererInfo ri;
-		SDL_GetRendererInfo(renderer, &ri);
+		synchronized (renderer_mutex) SDL_GetRendererInfo(renderer, &ri);
 
 		return cast(bool)(ri.flags & SDL_RENDERER_PRESENTVSYNC);
 	}
 
 	bool hasborders() {
-		return !(SDL_GetWindowFlags(window) & SDL_WINDOW_BORDERLESS);
+		synchronized (window_mutex) return !(SDL_GetWindowFlags(window) & SDL_WINDOW_BORDERLESS);
 	}
 	void setborders(bool on) {
-		SDL_SetWindowBordered(window, on ? SDL_TRUE : SDL_FALSE);
+		synchronized (window_mutex) SDL_SetWindowBordered(window, on ? SDL_TRUE : SDL_FALSE);
 	}
 
 	void getlogicalsize(ref uint w, ref uint h) {
-		SDL_RenderGetLogicalSize(renderer, cast(int*)&w, cast(int*)&h);
+		synchronized (renderer_mutex) SDL_RenderGetLogicalSize(renderer, cast(int*)&w, cast(int*)&h);
 	}
 	void setlogicalsize(uint w, uint h) {
-		if (SDL_RenderSetLogicalSize(renderer, w, h) < 0)
+		synchronized (renderer_mutex) if (SDL_RenderSetLogicalSize(renderer, w, h) < 0)
 			sdlerror();
 	}
 
@@ -249,11 +281,12 @@ final class Graphicsdl: Graphics {
 	}
 
 	Event waitevent() {
+		// TODO
 		return Event();
 	}
 
 	void settitle(string title) {
-		SDL_SetWindowTitle(window, toStringz(title));
+		synchronized (window_mutex) SDL_SetWindowTitle(window, toStringz(title));
 	}
 
 	private Key sdltokey(SDL_Keycode sdl) {
@@ -529,7 +562,7 @@ final class Graphicsdl: Graphics {
 		if (tmp is null) {
 			sdlerror();
 		} else {
-			songs[index] = tmp;
+			synchronized (song_mutex) songs[index] = tmp;
 		}
 	}
 
@@ -539,16 +572,16 @@ final class Graphicsdl: Graphics {
 		if (tmp is null) {
 			sdlerror();
 		} else {
-			sfx[index] = tmp;
+			synchronized (sfx_mutex) sfx[index] = tmp;
 		}
 	}
 
 	void startsong(uint index, int loops = -1) {
 		// # of loops actually works sensibly with music
-		Mix_PlayMusic(songs[index], loops);
+		synchronized (song_mutex) Mix_PlayMusic(songs[index], loops);
 	}
 	void fadeinsong(uint index, uint ms, int loop = -1) {
-		Mix_FadeInMusic(songs[index], loop, ms);
+		synchronized (song_mutex) Mix_FadeInMusic(songs[index], loop, ms);
 	}
 	bool song_is_playing() {
 		return !Mix_PausedMusic();
@@ -575,7 +608,7 @@ final class Graphicsdl: Graphics {
 		if (loops == 0) {
 			return;
 		} else {
-			Mix_PlayChannel(-1, sfx[index], (loops < 0) ? -1 : loops-1);
+			synchronized (sfx_mutex) Mix_PlayChannel(-1, sfx[index], (loops < 0) ? -1 : loops-1);
 		}
 	}
 

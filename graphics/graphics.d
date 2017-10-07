@@ -2,6 +2,7 @@ module graphics.graphics;
 
 import graphics.scancode;
 import maybe;
+public import graphicsdl: Graphics;
 
 struct Point {
 	int x, y;
@@ -113,83 +114,4 @@ struct Event {
 	}
 
 	Evtype type;
-}
-
-
-interface Graphics {
-	void init(GraphicsPrefs prefs);
-	void end();
-	void placesprite(Sprite s, int x, int y, Maybe!Colour clrmod = nothing!Colour, Maybe!Colour bg = nothing!Colour);
-	void clear();
-	void blit();
-	void loadsprite(ref Sprite sprite, string fpath);
-
-	void loadfont(string path, uint index, uint height=36);
-	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour);
-
-	uint screenw();
-	uint screenh();
-
-	uint winw();
-	uint winh();
-
-	float dpih();
-	float dpiw();
-
-	bool istruefullscreen();
-	void settruefullscreen(bool state);
-	final void toggletruefullscreen() {
-		settruefullscreen(!istruefullscreen());
-	}
-
-	bool isdesktopfullscreen();
-	void setdesktopfullscreen(bool state);
-	final void toggledesktopfullscreen() {
-		setdesktopfullscreen(!isdesktopfullscreen());
-	}
-
-	bool isvsync();
-
-	bool hasborders();
-	void setborders(bool on);
-	final void toggleborders() {
-		setborders(!hasborders());
-	}
-
-	void getlogicalsize(ref uint w, ref uint h);
-	void setlogicalsize(uint w, uint h);
-
-	void setwinw(uint w);
-	void setwinh(uint h);
-	void setwinsize(uint w, uint h);
-
-	Maybe!Event pollevent();
-	Event waitevent();
-
-	void settitle(string title);
-
-	Rect getrect(Sprite sprite);
-
-
-	void regsong(string path, uint index);
-
-	void regsfx(string path, uint index);
-
-	void startsong(uint index, int loops = -1);
-	void fadeinsong(uint index, uint ms, int loop = -1);
-	bool song_is_playing();
-	void pausesong();
-	void unpausesong();
-	void togglepausesong();
-	void musicstop();
-
-	void playsfx(uint index, int loops = 1);
-
-
-	uint getvolume();
-
-	void adjustvolume(byte amount);
-
-	void raisevolume(ubyte amount);
-	void lowervolume(ubyte amount);
 }
