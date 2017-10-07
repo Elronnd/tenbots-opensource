@@ -104,8 +104,6 @@ static:
 		IMG_Quit();
 		Mix_Quit();
 		SDL_Quit();
-
-		initialized = false;
 	}
 
 	void placesprite(Sprite s, int x, int y, Maybe!Colour clrmod, Maybe!Colour bg) {
