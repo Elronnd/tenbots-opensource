@@ -2,7 +2,7 @@ module graphics.graphics;
 
 import graphics.scancode;
 import maybe;
-public import graphicsdl: Graphics;
+public import graphics.sdl: Graphics;
 
 struct Point {
 	int x, y;
