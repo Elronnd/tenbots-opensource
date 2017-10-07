@@ -106,13 +106,13 @@ static:
 		SDL_Quit();
 	}
 
-	void placesprite(Sprite s, int x, int y, Maybe!Colour clrmod, Maybe!Colour bg) {
+	void placesprite(Sprite s, Maybe!Colour clrmod, Maybe!Colour bg) {
 		SDL_Rect rect;
 
-		rect.x = x;
-		rect.y = y;
+		rect.x = cast(int)s.x;
+		rect.y = cast(int)s.y;
 
-		SDL_QueryTexture(cast(SDL_Texture*)s.data, null, null, &rect.w, &rect.h);
+		SDL_QueryTexture(cast(SDL_Texture*)s.texture.data, null, null, &rect.w, &rect.h);
 
 		if (s.overridew > -1) rect.w = s.overridew;
 		if (s.overrideh > -1) rect.h = s.overrideh;
@@ -126,10 +126,10 @@ static:
 		}
 
 		if (clrmod.isset) {
-			SDL_SetTextureColorMod(cast(SDL_Texture*)s.data, clrmod.r, clrmod.g, clrmod.b);
+			SDL_SetTextureColorMod(cast(SDL_Texture*)s.texture.data, clrmod.r, clrmod.g, clrmod.b);
 		}
 
-		SDL_RenderCopy(renderer, cast(SDL_Texture*)s.data, null, &rect);
+		SDL_RenderCopy(renderer, cast(SDL_Texture*)s.texture.data, null, &rect);
 	}
 
 	void clear() {
@@ -140,11 +140,11 @@ static:
 		SDL_RenderPresent(renderer);
 	}
 
-	void loadsprite(ref Sprite s, string fpath) {
+	void loadtexture(ref Texture t, string fpath) {
 		SDL_Surface *surf = IMG_Load(toStringz(fpath));
 		if (!surf) sdlerror();
 
-		s.data = SDL_CreateTextureFromSurface(renderer, surf);
+		t.data = SDL_CreateTextureFromSurface(renderer, surf);
 
 		SDL_FreeSurface(surf);
 	}
@@ -155,10 +155,10 @@ static:
 	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour) {
 		SDL_Color white = SDL_Color(255, 255, 255, 0);
 		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
-		sprite.data = SDL_CreateTextureFromSurface(renderer, surf);
+		sprite.texture.data = SDL_CreateTextureFromSurface(renderer, surf);
 
 		if (clr.isset)
-			SDL_SetTextureColorMod(cast(SDL_Texture*)sprite.data, clr.r, clr.g, clr.b);
+			SDL_SetTextureColorMod(cast(SDL_Texture*)sprite.texture.data, clr.r, clr.g, clr.b);
 
 		SDL_FreeSurface(surf);
 	}
@@ -527,7 +527,7 @@ static:
 	Rect getrect(Sprite sprite) {
 		Rect ret;
 
-		SDL_QueryTexture(cast(SDL_Texture*)sprite.data, null, null, &ret.w, &ret.h);
+		SDL_QueryTexture(cast(SDL_Texture*)sprite.texture.data, null, null, &ret.w, &ret.h);
 
 		if (sprite.overridew > -1)
 			ret.w = sprite.overridew;

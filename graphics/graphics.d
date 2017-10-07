@@ -81,9 +81,25 @@ struct Rect {
 
 struct Sprite {
 	int overridew = -1, overrideh = -1;
-	double scalefactor = 1;
+	float scalefactor = 1;
+	real x, y;
 
+	Texture texture;
+
+	void load(string fpath) {
+		texture.load(fpath);
+	}
+
+	Rect getrect() {
+		return Graphics.getrect(this);
+	}
+}
+
+struct Texture {
 	package void *data;
+	void load(string fpath) {
+		Graphics.loadtexture(this, fpath);
+	}
 }
 
 struct GraphicsPrefs {
