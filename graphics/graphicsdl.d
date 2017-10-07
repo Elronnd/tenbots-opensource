@@ -28,6 +28,7 @@ private {
 
 
 static struct Graphics {
+static:
 	void init(GraphicsPrefs gprefs) {
 		// saving 1 byte of ram, at ketmar's insistance
 		if (window) {
