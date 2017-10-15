@@ -106,7 +106,7 @@ static:
 		SDL_Quit();
 	}
 
-	void placesprite(Sprite s, Maybe!Colour clrmod, Maybe!Colour bg) {
+	void placesprite(Sprite s, Maybe!Colour clrmod = nothing!Colour, Maybe!Colour bg = nothing!Colour) {
 		SDL_Rect rect;
 
 		rect.x = cast(int)s.x;

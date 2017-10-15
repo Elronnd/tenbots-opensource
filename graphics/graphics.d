@@ -31,6 +31,7 @@ struct Rect {
 
 
 	pure bool collides(Rect other) {
+		/*
 		immutable int x1 = x,
 			y1 = y,
 			x2 = x + w,
@@ -45,6 +46,17 @@ struct Rect {
 				ycollides = ((y1 <= oy1) && (oy1 <= y2)) || ((y1 <= oy2) && (oy2 <= y2));
 
 		return xcollides && ycollides;
+		 */
+		if (x >= (other.x + other.w))
+			return false;
+		if ((x+w) <= other.x)
+			return false;
+		if (y >= (other.y + other.h))
+			return false;
+		if ((y+h) <= other.y)
+			return false;
+
+		return true;
 
 		// Found this on SO.  It passes the unittests, but it fails when actually playing.  *shrug*
 		//return (abs(x - other.x) * 2 < (w + other.w)) &&
@@ -91,7 +103,10 @@ struct Sprite {
 	}
 
 	Rect getrect() {
-		return Graphics.getrect(this);
+		Rect rekt = Graphics.getrect(this);
+		rekt.x = cast(int)x;
+		rekt.y = cast(int)y;
+		return rekt;
 	}
 }
 
