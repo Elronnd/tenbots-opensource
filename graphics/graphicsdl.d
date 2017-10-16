@@ -132,7 +132,8 @@ static:
 		SDL_RenderCopy(renderer, cast(SDL_Texture*)s.texture.data, null, &rect);
 	}
 
-	void clear() {
+	void clear(Colour bg = Colour(0, 0, 0)) {
+		SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
 		SDL_RenderClear(renderer);
 	}
 
