@@ -617,6 +617,6 @@ static:
 		adjustvolume(amount);
 	}
 	void lowervolume(ubyte amount) {
-		adjustvolume(-amount);
+		adjustvolume(-cast(byte)(amount));
 	}
 }
