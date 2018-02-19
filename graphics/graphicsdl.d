@@ -8,9 +8,13 @@ import graphics.graphics;
 import graphics.scancode;
 import maybe;
 
+class SDLException: Exception {
+	mixin basicExceptionCtors;
+}
+
 
 private void sdlerror() {
-	throw new Exception(cast(string)("Error from SDL.  SDL says: " ~ fromStringz(SDL_GetError())));
+	throw new SDLException(cast(string)("Error from SDL.  SDL says: " ~ fromStringz(SDL_GetError())));
 }
 
 
@@ -91,6 +95,9 @@ static:
 
 
 	void end() {
+		if (!window)
+			return;
+
 		foreach (font; fonts.values) {
 			TTF_CloseFont(font);
 		}
@@ -102,6 +109,10 @@ static:
 		}
 
 		Mix_CloseAudio();
+		SDL_DestroyRenderer(renderer);
+		renderer = null;
+		SDL_DestroyWindow(window);
+		window = null;
 
 		TTF_Quit();
 		IMG_Quit();
@@ -225,7 +236,7 @@ static:
 	}
 
 	bool isdesktopfullscreen() {
-		// I've said it before, and I'll say it again.  In D int doesn't automatically coerce to int and that's fucking retarted!
+		// I've said it before, and I'll say it again.  In D int doesn't automatically coerce to bool and that's fucking retarted!
 		return cast(bool)(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
 	void setdesktopfullscreen(bool state) {
