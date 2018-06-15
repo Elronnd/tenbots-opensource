@@ -1,6 +1,7 @@
 module graphics.sdl;
 
 import std.string: fromStringz, toStringz;
+import std.exception: basicExceptionCtors;
 
 import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.sdl2.mixer;
 
