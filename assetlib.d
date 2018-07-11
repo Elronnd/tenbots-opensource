@@ -31,9 +31,9 @@ pragma(inline, true) public const(string) assetfname(string id)() {
 public string assetpath(string id)() {
 	if (!fdata[id].fexists) {
 		import std.string: lastIndexOf;
-		import std.path: tempDir, buildPath;
+		import std.path: buildPath;
 		import std.uuid: randomUUID;
-		import std.file: write;
+		import std.file: tempDir, write;
 
 		string path, fname = assetfname!id;
 
