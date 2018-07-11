@@ -1,7 +1,6 @@
 module graphics.sdl;
 
-import std.string: fromStringz, toStringz;
-import std.exception: basicExceptionCtors;
+import std.string: toStringz;
 
 import derelict.sdl2.image, derelict.sdl2.sdl, derelict.sdl2.ttf, derelict.sdl2.mixer;
 
@@ -10,11 +9,13 @@ import graphics.scancode;
 import maybe;
 
 class SDLException: Exception {
+	import std.exception: basicExceptionCtors;
 	mixin basicExceptionCtors;
 }
 
 
 private void sdlerror() {
+	import std.string: fromStringz;
 	throw new SDLException(cast(string)("Error from SDL.  SDL says: " ~ fromStringz(SDL_GetError())));
 }
 
@@ -168,15 +169,18 @@ static:
 		fonts[index] = TTF_OpenFont(toStringz(path), height);
 		if (!fonts[index]) sdlerror();
 	}
-	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour) {
+	void rendertext(ref Sprite sprite, const(char*) text, uint font, Maybe!Colour clr = nothing!Colour) {
 		SDL_Color white = SDL_Color(255, 255, 255, 0);
-		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], toStringz(text), white);
+		SDL_Surface *surf = TTF_RenderUTF8_Blended(fonts[font], text, white);
 		sprite.texture.data = SDL_CreateTextureFromSurface(renderer, surf);
 
 		if (clr.isset)
 			SDL_SetTextureColorMod(cast(SDL_Texture*)sprite.texture.data, clr.r, clr.g, clr.b);
 
 		SDL_FreeSurface(surf);
+	}
+	void rendertext(ref Sprite sprite, string text, uint font, Maybe!Colour clr = nothing!Colour) {
+		rendertext(sprite, toStringz(text), font, clr);
 	}
 
 	uint screenw() {
