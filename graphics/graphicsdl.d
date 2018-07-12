@@ -133,8 +133,8 @@ static:
 
 		if (s.overridew > -1) rect.w = s.overridew;
 		if (s.overrideh > -1) rect.h = s.overrideh;
-		rect.w *= s.scalefactor;
-		rect.h *= s.scalefactor;
+		rect.w *= cast(int)s.scalefactor;
+		rect.h *= cast(int)s.scalefactor;
 
 		if (bg.isset) {
 			SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
@@ -556,8 +556,8 @@ static:
 		if (sprite.overrideh > -1)
 			ret.h = sprite.overrideh;
 
-		ret.w *= sprite.scalefactor;
-		ret.h *= sprite.scalefactor;
+		ret.w *= cast(int)sprite.scalefactor;
+		ret.h *= cast(int)sprite.scalefactor;
 
 		return ret;
 	}
@@ -636,7 +636,7 @@ static:
 	void raisevolume(ubyte amount) {
 		adjustvolume(amount);
 	}
-	void lowervolume(ubyte amount) {
-		adjustvolume(-cast(byte)(amount));
+	void lowervolume(byte amount) {
+		adjustvolume(cast(byte)-cast(int)amount);
 	}
 }
