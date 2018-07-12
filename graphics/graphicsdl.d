@@ -37,6 +37,7 @@ static struct Graphics {
 static:
 	void init(GraphicsPrefs gprefs) {
 		// saving 1 byte of ram, at ketmar's insistance
+		// EDIT: context, because I'll probably forget later.  I was asking on #d about it, and mentioned multithreading.  In the end, I had a 'bool initted', and checked that, but ketmar said I was wasting a byte of ram.
 		if (window) {
 			return;
 		}
